@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "user_pool" {
-  name = "example-user-pool"
+  name = var.user_pool_name
 
   password_policy {
     minimum_length    = 8
@@ -27,7 +27,7 @@ resource "aws_cognito_user_pool" "user_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "app_client" {
-  name         = "example-app-client"
+  name         = var.user_pool_name
   user_pool_id = aws_cognito_user_pool.user_pool.id
 
   explicit_auth_flows = [
@@ -52,7 +52,7 @@ resource "aws_cognito_user_pool_client" "app_client" {
 }
 
 resource "aws_cognito_identity_pool" "identity_pool" {
-  identity_pool_name               = "example-identity-pool"
+  identity_pool_name               = var.identity_pool_name
   allow_unauthenticated_identities = false
 
   cognito_identity_providers {
