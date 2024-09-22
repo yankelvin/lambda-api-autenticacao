@@ -2,6 +2,7 @@ import os
 import json
 import boto3
 from aws_lambda_powertools.event_handler.api_gateway import APIGatewayRestResolver, Response, content_types
+from src.utils.serialize_document import serialize_document
 
 app = APIGatewayRestResolver(strip_prefixes=["/api"])
 cognito_client = boto3.client('cognito-idp')
@@ -26,6 +27,10 @@ def signup():
                     'Name': 'email',
                     'Value': email
                 },
+                {
+                    'Name': 'name',
+                    'Value': username
+                },
             ]
         )
         return Response(
@@ -38,6 +43,50 @@ def signup():
             status_code=400,
             content_type=content_types.APPLICATION_JSON,
             body=json.dumps({"error": "Usuário já existe!"})
+        )
+    except Exception as e:
+        return Response(
+            status_code=500,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"error": str(e)})
+        )
+
+@app.post("/confirm-user")
+def confirm_user():
+    try:
+        body = app.current_event.json_body
+        username = body.get("username")
+        confirmation_code = body.get("confirmation_code")
+        
+        response = cognito_client.confirm_sign_up(
+            ClientId=CLIENT_ID,
+            Username=username,
+            ConfirmationCode=confirmation_code
+        )
+
+        return Response(
+            status_code=200,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"message": f"Usuário {username} confirmado com sucesso!"})
+        )
+    
+    except cognito_client.exceptions.UserNotFoundException:
+        return Response(
+            status_code=404,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"error": "Usuário não encontrado!"})
+        )
+    except cognito_client.exceptions.CodeMismatchException:
+        return Response(
+            status_code=400,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"error": "Código de confirmação inválido!"})
+        )
+    except cognito_client.exceptions.ExpiredCodeException:
+        return Response(
+            status_code=400,
+            content_type=content_types.APPLICATION_JSON,
+            body=json.dumps({"error": "Código de confirmação expirado!"})
         )
     except Exception as e:
         return Response(
@@ -82,7 +131,7 @@ def login():
             body=json.dumps({"error": str(e)})
         )
 
-@app.get("/user/{username}")
+@app.get("/user/<username>")
 def get_user(username: str):
     try:
         response = cognito_client.admin_get_user(
@@ -92,7 +141,7 @@ def get_user(username: str):
         return Response(
             status_code=200,
             content_type=content_types.APPLICATION_JSON,
-            body=json.dumps({"message": "Dados do usuário", "user_data": response})
+            body=json.dumps({"message": "Dados do usuário", "user_data": serialize_document(response)})
         )
     except cognito_client.exceptions.UserNotFoundException:
         return Response(

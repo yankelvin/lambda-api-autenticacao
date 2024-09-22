@@ -11,9 +11,18 @@ def lambda_handler(event, context):
 #     "path": "/api/signup",
 #     "httpMethod": "POST",
 #     "body": json.dumps({
-#         "username": "teste",
-#         "password": "teste123",
-#         "email": "teste123@gmail.com"
+#         "username": "teste-cognito",
+#         "password": "Teste@123",
+#         "email": "teste-cognito@mailinator.com"
+#     })
+# }, None)
+
+# lambda_handler({
+#     "path": "/api/confirm-user",
+#     "httpMethod": "POST",
+#     "body": json.dumps({
+#         "username": "teste-cognito",
+#         "confirmation_code": "475454"
 #     })
 # }, None)
 
@@ -21,12 +30,14 @@ def lambda_handler(event, context):
 #     "path": "/api/login",
 #     "httpMethod": "POST",
 #     "body": json.dumps({
-#         "username": "teste",
-#         "password": "teste123"
+#         "username": "teste-cognito",
+#         "password": "Teste@123"
 #     })
 # }, None)
 
 # lambda_handler({
-#     "path": "/api/user/userId",
-#     "httpMethod": "GET"
+#     "path": "/api/user/teste-cognito",
+#     "httpMethod": "GET",
+#     "queryStringParameters": {
+#     }
 # }, None)

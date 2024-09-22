@@ -22,7 +22,11 @@ data "aws_iam_policy_document" "lambda_invoke_permission" {
       "secretsmanager:GetSecretValue",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
+      "cognito-idp:ConfirmSignUp",
+      "cognito-idp:GetUser",
+      "cognito-idp:AdminGetUser",
+      "cognito-idp:AdminInitiateAuth"
     ]
     resources = ["*"]
   }
